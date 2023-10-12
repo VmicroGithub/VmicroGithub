@@ -9,8 +9,20 @@
 <!DOCTYPE html>
 
 <script src="//code.jquery.com/jquery-1.11.1.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+<script src="https://cdn.rawgit.com/seikichi/tiff.js/master/tiff.min.js"></script>
 <link href="//netdna.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css">
-<script src="//netdna.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+
+<script> function processImages() {
+      var images = getImagesInGrid();
+      // Faites quelque chose avec les images récupérées, par exemple :
+      for (var i = 0; i < images.length; i++) {
+        var image = images[i];
+        console.log("Image #" + (i + 1) + ": " + image.src);
+        // Effectuez ici les opérations souhaitées avec chaque image
+      }
+    }
+  </script>
 
 <html>
   <style>
@@ -23,6 +35,7 @@
           <?php
             require("../NavBar/NavBar2.php");
             require("../NavBar/navComposant2.php");
+            
           ?>
           </div>
           <input type="hidden" id="firstNameUser" value="<?php echo $_SESSION['prenom']; ?>">
@@ -31,11 +44,77 @@
           <input type="hidden" id="lastComponent" value="<?php echo $_SESSION['lastComponent'];?>">
           <input type="hidden" id="selectedComponent" value="<?php echo $_GET['selectedComponent']; ?>">
 
-          <div id="indicationComposant"></div>
+   
 
           <!-- Conception de la page qui présente le composant sélectionnée -->
           <div id="mainPageAffichageComposant">
             <div id="historique">
+            <div id="ligneNav"class="ligneNavigation">
+  <div id="colonne1" class="colonne">
+  <div id="listMesure">
+    </div>
+  
+    
+    
+
+  </div>
+  <div id="colonne2" class="colonne">
+    
+
+    
+
+    <!--
+    <div style="margin:auto;">
+      <a id="lienModifTheoricalValue">Modification des valeurs théoriques</a>
+    </div>
+    -->
+
+  </div>
+  
+  <div id="colonne4" class= "colonne">
+    
+    <div>
+      <label contenteditable="true" id="traitement"></label>
+    </div>
+    <table style="height:100%;">
+      <tr>
+        <td  style="text-align:right;">
+          <label>Type wafer : </label>
+        </td>
+        <td>
+          <label id="affichageTypeWafer"> Non défini</label>
+        </td>
+      </tr>
+
+      <tr>
+        <td  style="text-align:right;">
+          <label>Type réticule :</label>
+        </td>
+        <td>
+          <label id="affichageTypeReticule"></label>
+        </td>
+      </tr>
+
+      <tr>
+        <td  style="text-align:right;">
+          <label>Type composant : </label>
+        </td>
+        <td>
+          <label id="affichageTypeComposant"> Non défini </label>
+        </td>
+      </tr>
+
+      <tr>
+        <td  style="text-align:right;">
+          <label>Etat composant : </label>
+        </td>
+        <td>
+          <label id="etatComposant"> Non défini </label>
+        </td>
+      </tr>
+    </table>
+    </div>
+  </div>
               <!--
               <div style="padding-left:25px; background-color: black; color:white;">
                 <h3>Etat Composant</h3>
@@ -87,7 +166,7 @@
                 </div>
               </div>
               -->
-              <div style="padding-left:25px; background-color: black; color:white;">
+             <!-- <div style="padding-left:25px; background-color: black; color:white;">
                 <h3> Mesures et Expériences </h3>
               </div>
               <div id="conteneurME">
@@ -124,7 +203,8 @@
                       </div>
                     </div>
                   </div>
-                </div>
+                </div> -->
+
                 <!--
                 <div id="conteneurBouton">
                   <div style="margin:auto; grid-row:1; width:80%;">
@@ -136,6 +216,7 @@
                 </div>
                 -->
 
+                <!--
                 <div class="success-checkmark" style="display:none;">
                   <div class="check-icon">
                     <span class="icon-line line-tip"></span>
@@ -150,6 +231,7 @@
                 <div style="padding-left:25px; background-color: black; color:white;">
                   <h3> Historique </h3>
                 </div>
+                
                 <div id="ligneEnteteEditionME">
                   <div id="enteteEditionME">
                     <label>Mesures/Experiences</label>
@@ -170,17 +252,34 @@
                   </div>
                 </div>
               </div>
-              <div id="ajoutCommentaire">
+              -->
+              <div id="carousel" >
+            
                 <div style="padding-left:25px; background-color: black; color:white;">
-                  <h3> Ajout commentaire </h3>
+                 
                 </div>
+            
+                <div class="container" style="margin-left:80px;margin-top:100px;"></div>
+
+                <button class="carousel__prev" id="prev"style=margin-left:80px;>Précédent</button>
+
+                <button class="carousel__next" id="next"style=margin-left:700px;>Suivant</button>
+            
+                <input type="checkbox" id="checkboxId">
+                <!--<label for="checkboxId">Masquer les miniatures</label>-->
+              </div>
+
+              <div id="ajoutCommentaire" style=margin-left:80px>
+               <!-- <div style="padding-left:25px; background-color: black; color:white;">
+                  <h3> Ajout commentaire </h3>
+                </div>-->
                 <div id="formulaireCommentaire">
                   <div id="partieHauteCommentaire">
                     <div id="commentaireAuteur">
-                      <label>Commentaire réalisé par :</label>
+                      <!--<label>Commentaire réalisé par :</label>
                       <select id="selecteurAuteurCommentaire">
                         <option> --- </option>
-                      </select>
+                      </select>-->
                     </div>
                     <div id="commentairePhoto">
                       <label> Ajouter une photo : (Max: 2 Mo) </label>
@@ -190,46 +289,46 @@
                       <label> Ajouter un fichier : </label>
                       <input type="file" id="selecteurFichier"/>
                     </div>
+                    <button type="button" id="boutonCommentaire" style="width:50%; margin:10px 150px"> AJOUTER Image </button>
+
                   </div>
                   <label> Commentaires :</label>
                   <textarea id="descriptionCommentaire" style="height:80px;"></textarea>
-                  <div>
-                    <button type="button" id="boutonCommentaire" style="width:50%; margin:10px 150px"> AJOUTER COMMENTAIRE </button>
-                    <button type="button" id="EraseCommentaire" style="width:15%;"> Clear comment </buton>
-                  </div>
+                  <div id="confirmationDiv" style="display: none;">La sauvegarde a été effectuée.</div>
+                 
                 </div>
               </div>
+              
+              
 
-              <div id="editionCommentaire">
-                <div style="padding-left:25px; background-color: black; color:white;">
-                  <h3> Commentaires </h3>
-                </div>
-                <div id="ligneEnteteEditionCommentaire">
-                  <div id="enteteEditionCommentaire">
-                    <label>Commentaires</label>
-                  </div>
-                  <div id="enteteEditionAuteurCommentaire">
-                    <label>Auteur</label>
-                  </div>
-                  <div id="enteteEditionDateCommentaire">
-                    <label>Date</label>
-                  </div>
-                </div>
-                <div id="ligneCorpsEditionCommentaire">
-                    <div id="corpsEditionCommentaire" style="display:grid;">
-                      <!--<div id="com1">Ceci est un commentaire fait dans le php</div>-->
-                    </div>
-                    <div id="corpsEditionAuteurCommentaire">
-                      <!--<div id="com1">Guillaume</div>-->
-                    </div>
-                    <div id="corpsEditionDateCommentaire">
-                      <!--<div id="com1">06/10/2020</div>-->
-                    </div>
-
-                </div>
-              </div>
+             
             </div>
+            <div id="content_2" style="display:none">
+              <div id="paramret">
+                  <div style="padding-left:25px; background-color: black; color:white;">
+                    <label> Paramètre Réticule </label>
+                  </div>
+              </div>
+            
+            <!--<div id="commentret">
+                  <div style="padding-left:25px; background-color: black; color:white;">
+                    <h3> commentaire Réticule  </h3>
+                  </div>
+                  <div class="containercom"></div>
+
+             <button class="carouselcom__prev" id="prevcom">Précédent</button>
+
+             <button class="carouselcom__next" id="nextcom">Suivant</button>
+            
+             <input type="checkbox" id="checkboxIdcom">
+             <label for="checkboxIdcom">Masquer les miniatures</label>
+              </div>-->
+         
+
+              </div>
           </div>
+          </div>
+        
         <?php
         }
         else { // Si non connecté alors redirection
@@ -240,11 +339,12 @@
         <?php
       }
       ?>
-        <script>
-          //var idComposantMemory = 5005;
-        </script>
+      
+        
+      
         <script src="../AJAX/ajax.js"></script>
         <script src="../NavBar/navComposant2.js"></script>
         <script src="affichageComposant.js"></script>
-        <script src="https://cdn.rawgit.com/seikichi/tiff.js/master/tiff.min.js"></script>
+        
+  
 </html>

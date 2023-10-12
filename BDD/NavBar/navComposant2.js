@@ -11,8 +11,9 @@
 //PORCHERIE
 var previousValeurTableau = null;
 //FIN PORCHERIE
-
-
+var container = document.querySelector('.container');
+var ancienneValeur = [];
+let newDivValeurs = [];
 var selecteurProjet = document.getElementById("selecteurProjet");
 var affichageNomClient = document.getElementById("affichageNomClient");
 var selecteurWafer = document.getElementById("selecteurWafer");
@@ -25,6 +26,7 @@ var representationComposant = document.getElementById("representationComposant")
 var affichageTypeReticule = document.getElementById("affichageTypeReticule");
 var affichageTypeComposant = document.getElementById("affichageTypeComposant");
 var affichageIDComposant = document.getElementById("indicationComposant");
+var affichageNomComposantSurvol =document.getElementById("affichageNomComposantSurvol");
 var affichageTypeComposantSurvol = document.getElementById("affichageTypeComposantSurvol");
 var divTypeComposantSurvol = document.getElementById("divTypeComposantSurvol");
 var colonne2 = document.getElementById("colonne2")
@@ -41,12 +43,12 @@ var addBox = document.getElementById('boutonAjoutBoite');
 var seeBox = document.getElementById('boutonVoirBoite');
 var etatWafer = document.getElementsByName("etatWafer");
 var mortWafer = document.getElementsByName("mortWafer");
+var clickmort=0;
 var num_box = document.getElementById("num_box");
 var coord_box = document.getElementById("coord_box");
 var extra_box1 = document.getElementById("extra_box1");
 var extra_box2 = document.getElementById("extra_box2");
 var coordBoite = document.getElementById("coordBoite");
-
 var variableGlobaleStockageRequeteProjetList;
 var variableGlobaleStockageRequeteWaferByNameProject;
 var variableGlobaleStockageRequeteComposant;
@@ -55,18 +57,17 @@ var maxX_Ret = 0;
 var maxY_Ret = 0;
 var maxX_C = 0;
 var maxY_C = 0;
-
 var reticuleSelect;
+var retclick=0;
 var composantSelect;
 var typeComposantMemory;
 var idComposantMemory;
 var reticuleSurvol;
 var composantSurvol;
-
 var tabCouleur = ['00F0DA', '007CF0', '3A00F0', '9100F0', 'E100F0', 'F00087', 'F00054', '5FF000'];
 var bufferCouleurReticule = [];
-
 var selectedComponent = document.getElementById("selectedComponent");
+
 
 function sleep(ms) {
   return new Promise(
@@ -75,9 +76,7 @@ function sleep(ms) {
 }
 
 function creationGridComposant(conteneur, tailleX, tailleY){
-
   conteneur.innerHTML = "";
-
   var divRepresentationComposant = document.createElement("div");
   divRepresentationComposant.id = "representationComposant";
   divRepresentationComposant.style.display = "grid";
@@ -86,10 +85,9 @@ function creationGridComposant(conteneur, tailleX, tailleY){
   var retx=parseInt(reticuleSelect.id.substr(8,1),16)
   var rety=parseInt(reticuleSelect.id.substr(9,1),16)
   console.log("wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww");
-  console.log(retx);
+  console.log("jesuis x ",retx);
   console.log(rety);
-  console.log(variableGlobaleStockageRequeteComposant);
-
+  console.log("ui",variableGlobaleStockageRequeteComposant);
   for(var y=1; y <= tailleY; y++){
     for(var x=1; x <= tailleX; x++){
       var composantXY = document.createElement("div");
@@ -123,34 +121,33 @@ function creationGridComposant(conteneur, tailleX, tailleY){
       composantXY.style.border = "1px solid black";
       composantXY.style.gridColumn = x;
       composantXY.style.gridRow = tailleY-y+1;
-
       composantXY.addEventListener("click", (e)=>{
         clickComposant(e,retx,rety);
+        
+
       });
       composantXY.addEventListener("mouseover", (e)=>{
         survolComposant(e,retx,rety);
       });
+      composantXY.addEventListener("mouseout", (e)=>{
+        survolComposant1(e,retx,rety);
+      });
+      
 
       divRepresentationComposant.appendChild(composantXY);
     }
   }
-
   conteneur.appendChild(divRepresentationComposant);
-  
 }
 
 function creationGridReticule(conteneur, tailleX, tailleY){
-
-  //console.log(conteneur);
   conteneur.innerHTML = "";
-
   var divRepresentationReticule = document.createElement("div");
   divRepresentationReticule.id = "representationReticule";
   divRepresentationReticule.style.display = "grid";
   //divRepresentationReticule.style.gridTemplateColumns = "repeat("+parseInt(tailleX+2)+" ,1fr)";
   divRepresentationReticule.style.gridTemplateColumns = "25px repeat(" + parseInt(tailleX+1) + ",1fr)";
   divRepresentationReticule.style.gridTemplateRows = "repeat("+parseInt(tailleY+1)+" ,1fr)";
-
   var divYX = document.createElement("div");
   divYX.id="YX";
   divYX.style.backgroundColor = "white";
@@ -160,17 +157,6 @@ function creationGridReticule(conteneur, tailleX, tailleY){
   divYX.style.textAlign = "center";
   divYX.innerHTML ="Y/X";
   divRepresentationReticule.appendChild(divYX);
-
-  /*
-  var divXMeplat = document.createElement("div");
-  divXMeplat.id = "XMeplat";
-  divXMeplat.style.backgroundColor = "white";
-  divXMeplat.style.border = "1px solid black";
-  divXMeplat.style.gridColumn = "2";
-  divXMeplat.style.gridRow = tailleY+1;
-  divRepresentationReticule.appendChild(divXMeplat);
-  */
-
   var divMeplat = document.createElement("div");
   divMeplat.id = "meplat";
   divMeplat.style.backgroundColor = "grey";
@@ -208,89 +194,21 @@ function creationGridReticule(conteneur, tailleX, tailleY){
     iX.innerHTML = x;
     divRepresentationReticule.appendChild(iX);
   }
-  /*
-
-  var divYX = document.createElement("div");
-  divYX.id="YX";
-  divYX.style.backgroundColor = "white";
-  divYX.style.border = "1px solid black";
-  divYX.style.gridColumn = "1";
-  divYX.style.gridRow = tailleY+1;
-  divYX.innerHTML ="Y/X";
-  divRepresentationReticule.appendChild(divYX);
-
-  var divXMeplat = document.createElement("div");
-  divXMeplat.id = "XMeplat";
-  divXMeplat.style.backgroundColor = "white";
-  divXMeplat.style.border = "1px solid black";
-  divXMeplat.style.gridColumn = "2";
-  divXMeplat.style.gridRow = tailleY+1;
-  divRepresentationReticule.appendChild(divXMeplat);
-
-  var divMeplat = document.createElement("div");
-  divMeplat.id = "meplat";
-  divMeplat.style.backgroundColor = "grey";
-  divMeplat.style.border = "1px solid black";
-  divMeplat.style.gridColumn = "2";
-  divMeplat.style.gridRowStart = "2";
-  divMeplat.style.gridRowEnd = tailleY;
-  divMeplat.innerHTML = "meplat";
-  divMeplat.style.fontSize = "8px";
-  divMeplat.style.textAlign = "center";
-  divMeplat.style.writingMode = "vertical-lr";
-  divMeplat.style.textOrientation = "upright";
-  divRepresentationReticule.appendChild(divMeplat);
-
-  for(var y=0; y < tailleY; y++){
-    var iY = document.createElement("div");
-    iY.id="Y"+y;
-    iY.style.backgroundColor = "white";
-    iY.style.border = "1px solid black";
-    iY.style.textAlign = "center";
-    iY.style.gridColumn = "1";
-    iY.style.gridRow = tailleY-y;
-    iY.innerHTML = y+1;
-    divRepresentationReticule.appendChild(iY);
-  }
-
-  for(var x=1; x <= tailleX; x++){
-    var iX = document.createElement("div");
-    iX.id="X"+x;
-    iX.style.backgroundColor = "white";
-    iX.style.border = "1px solid black";
-    iX.style.textAlign = "center";
-    iX.style.gridColumn = x+2;
-    iX.style.gridRow = tailleY+1;
-    iX.innerHTML = x;
-    divRepresentationReticule.appendChild(iX);
-  }
-  */
-
   console.log('________________________________');
 
   bufferCouleurReticule.splice(0, bufferCouleurReticule.length);
-  console.log(bufferCouleurReticule);
-
-  /*
-  console.log(variableGlobaleStockageRequeteComposant["Nom_Type_C"]);
-  console.log(variableGlobaleStockageRequeteComposant["Nom_Type_C"].filter(isUnique));
-  typeReticuleGlobal = variableGlobaleStockageRequeteComposant["Nom_Type_C"].filter(isUnique);
-  */
-
+  console.log("buffcouleur",bufferCouleurReticule);
   console.log(variableGlobaleStockageRequeteComposant["Nom_Type_Reticule"]);
   console.log(variableGlobaleStockageRequeteComposant["Nom_Type_Reticule"].filter(isUnique));
   typeReticuleGlobal = variableGlobaleStockageRequeteComposant["Nom_Type_Reticule"].filter(isUnique);
   afficheLegendeCouleur(typeReticuleGlobal);
-
   console.log('________________________________');
   for(var y=1; y <= tailleY; y++){
     for(var x=1; x <= tailleX; x++){
       var find=0;
       var reticuleXY = document.createElement("div");
       reticuleXY.id = "reticule"+(x.toString(16)).substr(-16)+(y.toString(16)).substr(-16);
-
       //Remplissage
-
       for(var indexComposant=0; indexComposant < variableGlobaleStockageRequeteComposant["Nom_Type_C"].length; indexComposant++){
         if(variableGlobaleStockageRequeteComposant["Pos_X_Ret"][indexComposant] == x){
           //console.log("OK ===> x");
@@ -308,25 +226,8 @@ function creationGridReticule(conteneur, tailleX, tailleY){
             });
             break;
           }
-        }
+        } 
       }
-      /*
-      for(var indexComposant=0; indexComposant < variableGlobaleStockageRequeteComposant["Nom_Type_C"].length; indexComposant++){
-        typeReticuleGlobal.forEach((typeReticuleMAP, indexTRM) => {
-          if(typeReticuleMAP == variableGlobaleStockageRequeteComposant["Nom_Type_Reticule"][indexComposant]){
-            if(variableGlobaleStockageRequeteComposant["Pos_X_Ret"][indexComposant] == x){
-              if(variableGlobaleStockageRequeteComposant["Pos_Y_Ret"][indexComposant] == y){
-                console.log(x+":"+y+": typeReticuleMAP="+typeReticuleMAP+"   &&   "+variableGlobaleStockageRequeteComposant["Nom_Type_Reticule"][indexComposant]);
-                reticuleXY.style.backgroundColor = tabCouleur[indexTRM];
-                bufferCouleurReticule.push(tabCouleur[indexTRM]);
-                find=1;
-                break;
-              }
-            }
-          }
-        });
-      }
-      */
       if(find==0){
         bufferCouleurReticule.push("222222");
         reticuleXY.style.backgroundColor = "222222";
@@ -355,54 +256,53 @@ function creationGridReticule(conteneur, tailleX, tailleY){
   conteneur.appendChild(divRepresentationReticule);
 }
 
-function remplissageSelecteurComposant(conteneur, contenu){
+function remplissageSelecteurComposant(conteneur, contenu) {
   console.log(contenu);
 
   conteneur.innerHTML = "";
 
-  var positionXReticuleSelecteur = parseInt(reticuleSelect.id.substr(8,1),16);
-  var positionYReticuleSelecteur = parseInt(reticuleSelect.id.substr(9,1),16);
+  var positionXReticuleSelecteur = parseInt(reticuleSelect.id.substr(8, 1), 16);
+  var positionYReticuleSelecteur = parseInt(reticuleSelect.id.substr(9, 1), 16);
 
-  var maxX=0;
-  var maxY=0;
+  var maxX = 0;
+  var maxY = 0;
 
   contenu['ID_Composant'].forEach((composantID, indexComposant) => {
-    if(contenu['Pos_X_Ret'][indexComposant] == positionXReticuleSelecteur){
-      if(contenu['Pos_Y_Ret'][indexComposant] == positionYReticuleSelecteur){
+    if (contenu['Pos_X_Ret'][indexComposant] == positionXReticuleSelecteur) {
+      if (contenu['Pos_Y_Ret'][indexComposant] == positionYReticuleSelecteur) {
 
-        if(contenu['Coord_X_C'][indexComposant] > maxX){ maxX = contenu['Coord_X_C'][indexComposant];}
-        if(contenu['Coord_Y_C'][indexComposant] > maxY){ maxY = contenu['Coord_Y_C'][indexComposant];}
-
-        //console.log(composantID);
-        //console.log(contenu['Coord_X_C'][indexComposant] + " ||| " + contenu["Coord_Y_C"][indexComposant]);
+        if (contenu['Coord_X_C'][indexComposant] > maxX) {
+          maxX = contenu['Coord_X_C'][indexComposant];
+        }
+        if (contenu['Coord_Y_C'][indexComposant] > maxY) {
+          maxY = contenu['Coord_Y_C'][indexComposant];
+        }
 
         var option = document.createElement('option');
-        option.appendChild(document.createTextNode(contenu['Coord_X_C'][indexComposant] + contenu["Coord_Y_C"][indexComposant]));
-        option.value = contenu['Coord_X_C'][indexComposant] + contenu["Coord_Y_C"][indexComposant];
+        var coordString = JSON.stringify(contenu['Coord_X_C'][indexComposant]) + JSON.stringify(contenu["Coord_Y_C"][indexComposant]);
+        option.appendChild(document.createTextNode(coordString));
+        option.value = coordString;
         conteneur.appendChild(option);
+        console.log("List" + option.value);
       }
     }
   });
-  //console.log(maxX);
-  //console.log(maxY);
 
-  
+  console.log(maxX);
+  console.log(maxY);
   maxX_C = maxX;
   maxY_C = maxY;
   creationGridComposant(representationComposant, parseInt(maxX_C), parseInt(maxY_C));
 
   console.log(composantSelect);
-  if(composantSelect == undefined){
+  if (composantSelect == undefined) {
     composantSelect = document.getElementById("composant" + contenu['Coord_X_C'][0] + contenu['Coord_Y_C'][0]);
-  }
-  else{
-    //console.log(composantSelect.id.substr(9,1));
-    //console.log(composantSelect.id.substr(10,1));
-    for(var indexNomTypeComposant=0; indexNomTypeComposant < contenu['Nom_Type_C'].length; indexNomTypeComposant++){
-      if(contenu['Pos_X_Ret'][indexNomTypeComposant] == positionXReticuleSelecteur){
-        if(contenu['Pos_Y_Ret'][indexNomTypeComposant] == positionYReticuleSelecteur){
-          if(contenu['Coord_X_C'][indexNomTypeComposant] == composantSelect.id.substr(9,1)){
-            if(contenu['Coord_Y_C'][indexNomTypeComposant] == composantSelect.id.substr(10,1)){
+  } else {
+    for (var indexNomTypeComposant = 0; indexNomTypeComposant < contenu['Nom_Type_C'].length; indexNomTypeComposant++) {
+      if (contenu['Pos_X_Ret'][indexNomTypeComposant] == positionXReticuleSelecteur) {
+        if (contenu['Pos_Y_Ret'][indexNomTypeComposant] == positionYReticuleSelecteur) {
+          if (contenu['Coord_X_C'][indexNomTypeComposant] == composantSelect.id.substr(9, 1)) {
+            if (contenu['Coord_Y_C'][indexNomTypeComposant] == composantSelect.id.substr(10, 1)) {
               composantSelect = document.getElementById("composant" + contenu['Coord_X_C'][indexNomTypeComposant] + contenu['Coord_Y_C'][indexNomTypeComposant]);
               selecteurComposant.value = contenu['Coord_X_C'][indexNomTypeComposant] + contenu['Coord_Y_C'][indexNomTypeComposant];
               break;
@@ -414,75 +314,23 @@ function remplissageSelecteurComposant(conteneur, contenu){
   }
   composantSelect.style.backgroundColor = "#F06400";
 
-  remplissageTypeComposant(affichageTypeComposant, contenu,positionXReticuleSelecteur,positionYReticuleSelecteur);
-  affichageTypeComposant.style.fontSize = "12px";
+  // Triez les options du sélecteur avec une fonction de comparaison personnalisée
+  var options = Array.from(conteneur.options);
+  options.sort((a, b) => {
+    const aStart = a.value.charAt(0);
+    const bStart = b.value.charAt(0);
 
-}
-/*
-function remplissageSelecteurComposant2(conteneur, contenu,retx,rety){
-  console.log(contenu);
-
-  conteneur.innerHTML = "";
-
-  var positionXReticuleSelecteur = retx;
-  var positionYReticuleSelecteur = rety;
-
-  var maxX=0;
-  var maxY=0;
-
-  contenu['ID_Composant'].forEach((composantID, indexComposant) => {
-    if(contenu['Pos_X_Ret'][indexComposant] == positionXReticuleSelecteur){
-      if(contenu['Pos_Y_Ret'][indexComposant] == positionYReticuleSelecteur){
-
-        if(contenu['Coord_X_C'][indexComposant] > maxX){ maxX = contenu['Coord_X_C'][indexComposant];}
-        if(contenu['Coord_Y_C'][indexComposant] > maxY){ maxY = contenu['Coord_Y_C'][indexComposant];}
-
-        //console.log(composantID);
-        //console.log(contenu['Coord_X_C'][indexComposant] + " ||| " + contenu["Coord_Y_C"][indexComposant]);
-
-        var option = document.createElement('option');
-        option.appendChild(document.createTextNode(contenu['Coord_X_C'][indexComposant] + contenu["Coord_Y_C"][indexComposant]));
-        option.value = contenu['Coord_X_C'][indexComposant] + contenu["Coord_Y_C"][indexComposant];
-        conteneur.appendChild(option);
-      }
-    }
+    return aStart.localeCompare(bStart);
   });
-  //console.log(maxX);
-  //console.log(maxY);
 
-  
-  maxX_C = maxX;
-  maxY_C = maxY;
-  creationGridComposant(representationComposant, parseInt(maxX_C), parseInt(maxY_C));
+  conteneur.innerHTML = '';
+  options.forEach(option => conteneur.appendChild(option));
 
-  console.log(composantSelect);
-  if(composantSelect == undefined){
-    composantSelect = document.getElementById("composant" + contenu['Coord_X_C'][0] + contenu['Coord_Y_C'][0]);
-  }
-  else{
-    //console.log(composantSelect.id.substr(9,1));
-    //console.log(composantSelect.id.substr(10,1));
-    for(var indexNomTypeComposant=0; indexNomTypeComposant < contenu['Nom_Type_C'].length; indexNomTypeComposant++){
-      if(contenu['Pos_X_Ret'][indexNomTypeComposant] == positionXReticuleSelecteur){
-        if(contenu['Pos_Y_Ret'][indexNomTypeComposant] == positionYReticuleSelecteur){
-          if(contenu['Coord_X_C'][indexNomTypeComposant] == composantSelect.id.substr(9,1)){
-            if(contenu['Coord_Y_C'][indexNomTypeComposant] == composantSelect.id.substr(10,1)){
-              composantSelect = document.getElementById("composant" + contenu['Coord_X_C'][indexNomTypeComposant] + contenu['Coord_Y_C'][indexNomTypeComposant]);
-              selecteurComposant.value = contenu['Coord_X_C'][indexNomTypeComposant] + contenu['Coord_Y_C'][indexNomTypeComposant];
-              break;
-            }
-          }
-        }
-      }
-    }
-  }
-  composantSelect.style.backgroundColor = "#F06400";
-
-  remplissageTypeComposant(affichageTypeComposant, contenu,retx,rety);
+  remplissageTypeComposant(affichageTypeComposant, contenu, positionXReticuleSelecteur, positionYReticuleSelecteur);
   affichageTypeComposant.style.fontSize = "12px";
-
 }
-*/
+
+
 function afficheLegendeCouleur(typeReticuleGlobal){
 
   legendeCouleur.innerHTML = ""; // On efface ce qui existe deja
@@ -546,15 +394,19 @@ function remplissageSelecteurReticule(conteneur, contenu){
   maxY_Ret = maxY;
 
   creationGridReticule(representationReticule, parseInt(maxX), parseInt(maxY));
-
+if(retclick!=0){
+  reticuleSelect=document.getElementById(retclick.id);
+  reticuleSelect.style.backgroundColor = "#F06400";
+}else{
   reticuleSelect = document.getElementById("reticule"+contenu['Pos_X_Ret'][0]+contenu['Pos_Y_Ret'][0]);
   reticuleSelect.style.backgroundColor = "#F06400";
+}
   // PORCHERIE GRUI GRUI
   previousValeurTableau = (contenu['Pos_Y_Ret'][0]-1)*maxY_Ret + contenu['Pos_X_Ret'][0] - 1;
 
   remplissageNomTypeReticule(affichageTypeReticule, contenu['Pos_X_Ret'][0],contenu['Pos_Y_Ret'][0], contenu);
   remplissageSelecteurComposant(selecteurComposant, contenu);
-
+  retclick=0;
 }
 
 function loadComponent(nomWafer){
@@ -606,11 +458,10 @@ function remplissageTypeReticuleSurvol(conteneur, contenu, valeurXReticule, vale
   }
 }
 
-function remplissageTypeComposantSurvol(conteneur, contenu, valeurXComposant, valeurYComposant,retx,rety){
+function remplissageTypeComposantSurvol(conteneur,conteneur2, contenu, valeurXComposant, valeurYComposant,retx,rety){
   
   var valeurXReticule =retx;
   var valeurYReticule =rety;
-  
   for(var indexNomTypeComposant=0; indexNomTypeComposant < contenu['Nom_Type_C'].length; indexNomTypeComposant++){
     if(contenu['Pos_X_Ret'][indexNomTypeComposant] == valeurXReticule){
       if(contenu['Pos_Y_Ret'][indexNomTypeComposant] == valeurYReticule){
@@ -619,6 +470,8 @@ function remplissageTypeComposantSurvol(conteneur, contenu, valeurXComposant, va
             //console.log(contenu['Nom_Type_C'][indexNomTypeComposant])
             conteneur.innerHTML = "";
             conteneur.innerHTML = contenu['Nom_Type_C'][indexNomTypeComposant];
+            conteneur2.innerHTML="";
+            conteneur2.innerHTML=valeurXComposant + valeurYComposant;
           }
         }
       }
@@ -653,8 +506,8 @@ function remplissageTypeComposant(conteneur, contenu,retx,rety){
             conteneur.innerHTML += contenu['Nom_Type_C'][indexNomTypeComposant];
             typeComposantMemory = contenu['Nom_Type_C'][indexNomTypeComposant];
             //console.log(contenu['ID_Composant'][indexNomTypeComposant]);
-            affichageIDComposant.innerHTML = "";
-            affichageIDComposant.innerHTML = "ID Composant => "+contenu['ID_Composant'][indexNomTypeComposant];
+           // affichageIDComposant.innerHTML = "";
+            //affichageIDComposant.innerHTML = "ID Composant => "+contenu['ID_Composant'][indexNomTypeComposant];
             idComposantMemory = contenu['ID_Composant'][indexNomTypeComposant];
 
             var url = 'https://vmicro.fr/database/BDD_1.0/API/api.php?action=setCurrentComponent&id_comp='+idComposantMemory;
@@ -667,61 +520,14 @@ function remplissageTypeComposant(conteneur, contenu,retx,rety){
             //lancementPagePrincipale(contenu['ID_Composant'][indexNomTypeComposant]);
             lancementPagePrincipale();
             affichageLastMesure(listMesure);
-            creationLienModifTheoricalValue(contenu['Nom_Type_C'][indexNomTypeComposant]);
+            //creationLienModifTheoricalValue(contenu['Nom_Type_C'][indexNomTypeComposant]);
           }
         }
       }
     }
   }
 }
-/*
-function remplissageTypeComposant2(conteneur, contenu,retx,rety){
-  //console.log(contenu);
-  var valeurXReticule = retx;
-  var valeurYReticule = rety;
-  var valeurXComposant = selecteurComposant.value.substr(0,1);
-  var valeurYComposant = selecteurComposant.value.substr(1,2);
 
-  for(var indexNomTypeComposant=0; indexNomTypeComposant < contenu['Nom_Type_C'].length; indexNomTypeComposant++){
-    if(contenu['Pos_X_Ret'][indexNomTypeComposant] == valeurXReticule){
-      if(contenu['Pos_Y_Ret'][indexNomTypeComposant] == valeurYReticule){
-        if(contenu['Coord_X_C'][indexNomTypeComposant] == valeurXComposant){
-          if(contenu['Coord_Y_C'][indexNomTypeComposant] == valeurYComposant){
-            //console.log(contenu['Nom_Type_C'][indexNomTypeComposant])
-            conteneur.innerHTML = "";
-
-            conteneur.innerHTML = "R"+selecteurReticule.value;
-            conteneur.innerHTML +="_";
-            conteneur.innerHTML += "C"+selecteurComposant.value;
-            conteneur.innerHTML +="_";
-            console.log("R"+contenu['Pos_X_Ret'][indexNomTypeComposant]+contenu['Pos_X_Ret'][indexNomTypeComposant]);
-            console.log("C"+contenu['Pos_X_C'][indexNomTypeComposant]+contenu['Pos_X_C'][indexNomTypeComposant]);
-
-            conteneur.innerHTML += contenu['Nom_Type_C'][indexNomTypeComposant];
-            typeComposantMemory = contenu['Nom_Type_C'][indexNomTypeComposant];
-            //console.log(contenu['ID_Composant'][indexNomTypeComposant]);
-            affichageIDComposant.innerHTML = "";
-            affichageIDComposant.innerHTML = "ID Composant => "+contenu['ID_Composant'][indexNomTypeComposant];
-            idComposantMemory = contenu['ID_Composant'][indexNomTypeComposant];
-
-            var url = 'https://vmicro.fr/database/BDD_1.0/API/api.php?action=setCurrentComponent&id_comp='+idComposantMemory;
-            console.log(url);
-            ajaxGet(url, function(reponseSetCurrentComponent){
-              console.log(JSON.parse(reponseSetCurrentComponent));
-            });
-
-            console.log(idComposantMemory);
-            //lancementPagePrincipale(contenu['ID_Composant'][indexNomTypeComposant]);
-            lancementPagePrincipale();
-            affichageLastMesure(listMesure);
-            creationLienModifTheoricalValue(contenu['Nom_Type_C'][indexNomTypeComposant]);
-          }
-        }
-      }
-    }
-  }
-}
-*/
 function remplissageCoordonnneReticuleSurvol(conteneur, valeurXReticule, valeurYReticule){
   conteneur.innerHTML = "";
   conteneur.innerHTML = String(valeurXReticule)+" / "+ String(valeurYReticule);
@@ -732,9 +538,7 @@ function remplissageCoordonnneReticuleSurvol(conteneur, valeurXReticule, valeurY
 }
 
 function remplissageNomTypeReticule(conteneur, valeurXReticule, valeurYReticule, contenu){
-  //console.log(contenu);
-  //console.log("valeur x reticule = "+valeurXReticule);
-  //console.log("valeur y reticule = "+valeurYReticule);
+ 
 
   for(var indexTypeReticule = 0; indexTypeReticule < contenu['Nom_Type_Reticule'].length; indexTypeReticule++){
     if(contenu['Pos_X_Ret'][indexTypeReticule] == valeurXReticule){
@@ -809,11 +613,6 @@ function remplissageNomClient(conteneur, contenu){
 }
 
 function remplissageSelecteurProjet(conteneur){
-  //var i = 1;
-  // if (i==1){
-  // document.location.reload();
-  // i=i-1;
-  // }
 
   var url = 'https://vmicro.fr/database/BDD_1.0/API/api.php?action=ProjetLIST';
   ajaxGet(url,function(reponseProjetList){
@@ -828,7 +627,7 @@ function remplissageSelecteurProjet(conteneur){
       }
     });
 
-    remplissageNomClient(affichageNomClient ,listProjet.results[0]["id_client"][0]);
+    //remplissageNomClient(affichageNomClient ,listProjet.results[0]["id_client"][0]);
     variableGlobaleStockageRequeteProjetList = listProjet.results[0];
     console.log("remplissageSelecteurWafer");
     remplissageSelecteurWafer(selecteurWafer ,listProjet.results[0]["Nom_projet"][0])
@@ -850,7 +649,7 @@ function remplissageBarNavigationWithID(){
         console.log("remplissageSelecteurWafer");
         remplissageSelecteurWafer(selecteurWafer,listeInfo.results[5],listeInfo.results[0]);
 
-        console.log(variableGlobaleStockageRequeteWaferByNameProject);
+        console.log("listwaf",variableGlobaleStockageRequeteWaferByNameProject);
         variableGlobaleStockageRequeteWaferByNameProject["Nom_Wafer"].forEach((nomWafer, indexWafer) => {
           console.log("nomWafer = "+ nomWafer+ " && selecteurWafer.value = "+selecteurWafer.value);
           if(nomWafer == selecteurWafer.value){
@@ -859,7 +658,7 @@ function remplissageBarNavigationWithID(){
           }
         });
 
-        remplissageNomClient(affichageNomClient, listeInfo.results[6]);
+       // remplissageNomClient(affichageNomClient, listeInfo.results[6]);
         setTimeout(function(){
 
           selecteurReticule.value = listeInfo.results[2]+ listeInfo.results[3]; // Rempli le sélecteur Réticule
@@ -896,12 +695,12 @@ function remplissageBarNavigationWithID(){
             }
           });
 
-          remplissageNomClient(affichageNomClient, listeInfo.results[6]);
+          //remplissageNomClient(affichageNomClient, listeInfo.results[6]);
           setTimeout(function(){
 
             selecteurReticule.value = listeInfo.results[2]+ listeInfo.results[3]; // Rempli le sélecteur Réticule
             changementReticule(); //Modification sur la map reticule
-
+            
             selecteurComposant.value = listeInfo.results[8]+ listeInfo.results[9]; // Rempli le sélecteur Composant
             changementComposant(); //Modification sur la map composant
           },0);
@@ -912,175 +711,274 @@ function remplissageBarNavigationWithID(){
   }
 }
 
-function affichageLastMesure(conteneur){
+
+
+var typicalMesure; // Déclaration de la variable en dehors de toutes les fonctions
+
+function affichageLastMesure(conteneur) {
   console.log("affichageLastMesure");
-  conteneur.style.display="grid";
-/*
-  SELECT Valeur, Nom_Parametre, Unite
-  FROM type_composant, caracteristique
-  WHERE caracteristique.ID_Caracteristique = type_composant.ID_Caracteristique AND Nom_Type_C=(SELECT type_Composant_Ref FROM `composant` WHERE ID_Composant = 5005);
-  */
-  var newEnteteDiv = document.createElement("div");
-  newEnteteDiv.style.display = "grid";
-  newEnteteDiv.style.gridTemplateColumns = "10px 150px repeat(2,1fr)";
-  newEnteteDiv.style.backgroundColor = "#e1f0ff52";
-  newEnteteDiv.style.border = "1px solid black";
+  conteneur.style.display = "grid";
+  newDivValeurs = [];
+  ancienneValeur = [];
 
+  function creerEntete() {
+    var newEnteteDiv = document.createElement("div");
+    newEnteteDiv.style.display = "grid";
+    newEnteteDiv.style.gridTemplateColumns = "10px 72px repeat(2,1fr)";
+    newEnteteDiv.style.backgroundColor = "#e1f0ff52";
+    newEnteteDiv.style.border = "1px solid black";
 
-  var newDivEnteteLogo = document.createElement("div");
-  newDivEnteteLogo.style.margin = "auto";
-  newDivEnteteLogo.style.width = "10px";
-  newDivEnteteLogo.style.gridColumn = "1";
-  //newDivEnteteLogo.innerHTML = "Etat";
+    var newDivEnteteLogo = document.createElement("div");
+    newDivEnteteLogo.style.margin = "auto";
+    newDivEnteteLogo.style.width = "10px";
+    newDivEnteteLogo.style.gridColumn = "1";
 
-  var newDivEnteteParametre = document.createElement("div");
-  newDivEnteteParametre.style.gridColumnStart = "2";
-  newDivEnteteParametre.style.gridColumnEnd = "4";
-  newDivEnteteParametre.style.margin = "0 auto";
-  newDivEnteteParametre.innerHTML = "Parametres";
+    var newDivEnteteParametre = document.createElement("div");
+    newDivEnteteParametre.style.gridColumnStart = "2";
+    newDivEnteteParametre.style.gridColumnEnd = "4";
+    newDivEnteteParametre.style.margin = "0 auto";
+    newDivEnteteParametre.innerHTML = "Parametres";
 
-  var newDivEnteteDefault = document.createElement("div");
-  newDivEnteteDefault.style.gridColumn = "4";
-  newDivEnteteDefault.style.borderLeft = "1px solid black";
+    var newDivEnteteDefault = document.createElement("div");
+    newDivEnteteDefault.style.gridColumn = "4";
+    newDivEnteteDefault.style.borderLeft = "1px solid black";
 
-  var baliseA = document.createElement("a");
-  baliseA.id = "lienModifTheoricalValue";
-  baliseA.innerHTML = "Default";
+    var baliseA = document.createElement("a");
+    baliseA.id = "lienModifTheoricalValue";
+    baliseA.innerHTML = "Default";
 
-  newDivEnteteDefault.appendChild(baliseA);
+    newDivEnteteDefault.appendChild(baliseA);
 
-  newEnteteDiv.appendChild(newDivEnteteLogo);
-  newEnteteDiv.appendChild(newDivEnteteParametre);
-  newEnteteDiv.appendChild(newDivEnteteDefault);
+    newEnteteDiv.appendChild(newDivEnteteLogo);
+    newEnteteDiv.appendChild(newDivEnteteParametre);
+    newEnteteDiv.appendChild(newDivEnteteDefault);
+
+    return newEnteteDiv;
+  }
 
   conteneur.innerHTML = "";
-  conteneur.appendChild(newEnteteDiv);
-  i=0;
+  var index = 0;
+  var enteteDiv = creerEntete();
+  conteneur.appendChild(enteteDiv);
 
-  var url = 'https://vmicro.fr/database/BDD_1.0/API/api.php?action=getTypicalMesure&ID_Composant='+idComposantMemory;
-  ajaxGet(url,function(reponseTypicalMesure){
-    if (i==0){
-      i=i+1;
-      typicalMesure = JSON.parse(reponseTypicalMesure);
-        console.log("LE 1");
-        console.log(typicalMesure);
-        typicalMesure.results[0]["Nom_Parametre"].forEach((nomTypicalParametre, indexTypicalParametre) => {
-          var newDiv = document.createElement("div");
-          newDiv.id = "ligneAffichageTypicalMesure"+indexTypicalParametre;
-          newDiv.style.display = "grid";
-          newDiv.style.gridTemplateColumns = "10px 150px repeat(2,1fr)";
-          //newDiv.style.border = "1px solid black";
+  var url =
+    'https://vmicro.fr/database/BDD_1.0/API/api.php?action=getTypicalMesure&ID_Composant=' +
+    idComposantMemory;
 
-          /*
-          var newDivLogo = document.createElement("div");
-          newDivLogo.style.margin = "auto";
-          newDivLogo.style.width = "10px";
-          newDivLogo.style.height = "10px";
-          newDivLogo.style.borderRadius = "5px";
+  ajaxGet(url, function (reponseTypicalMesure) {
+    var i = 0;
+    typicalMesure = JSON.parse(reponseTypicalMesure); // Affectation de la valeur
+    console.log("LE 1");
+    console.log(typicalMesure);
 
-          var newDivParametre = document.createElement("div");
-          var newContent = document.createTextNode(nomTypicalParametre+ '   ('+ typicalMesure.results[0]["Unite"][indexTypicalParametre] +')');
-          newDivParametre.style = "margin:auto;"
-          newDivParametre.appendChild(newContent);
+    var gridDiv = document.createElement("div");
+    gridDiv.style.display = "grid";
+    gridDiv.style.gridTemplateColumns = "repeat(auto-fill, minmax(300px, 1fr))";
+    gridDiv.style.gridGap = "10px";
 
-          var newDivValeur = document.createElement("div");
-          var url = 'https://vmicro.fr/database/BDD_1.0/API/api.php?action=getLastMesure&ID_Composant='+idComposantMemory+'&ID_Caracteristique='+typicalMesure.results[0]["ID_Caracteristique"][indexTypicalParametre];
-          ajaxGet(url,function(reponseLastMesure){
-            lastMesure = JSON.parse(reponseLastMesure);
-            console.log(lastMesure);
-            if(lastMesure.results[0] === null){
-              console.log("il n'y a pas de derniere mesure");
-              newDivLogo.style.background = "red";
-            }
-            else {
-              console.log(lastMesure.results[0]["Valeur"][0]);
-              newDivLogo.style.background = "green";
-              var newContent = document.createTextNode(lastMesure.results[0]["Valeur"][0]);
-              newDivValeur.appendChild(newContent);
-            }
-          });
+    typicalMesure.results[0]["Nom_Parametre"].forEach(function (
+      nomTypicalParametre,
+      indexTypicalParametre
+    ) {
+      var newIndex = index;
+      var newDiv = document.createElement("div");
+      newDiv.id = "ligneAffichageTypicalMesure" + indexTypicalParametre;
+      newDiv.style.display = "grid";
+      newDiv.style.gridTemplateColumns = "10px 150px repeat(2,1fr)";
 
-          var newDivValeurTheorique = document.createElement("div");
-          var newContent = document.createTextNode(typicalMesure.results[0]["Valeur"][indexTypicalParametre]);
-          newDivValeurTheorique.appendChild(newContent);
+      var newDivLogo = document.createElement("div");
+      newDivLogo.style.margin = "auto";
+      newDivLogo.style.width = "10px";
+      newDivLogo.style.height = "10px";
+      newDivLogo.style.borderRadius = "5px";
+      newDivLogo.style.gridColumn = "1";
 
-          newDiv.appendChild(newDivLogo);
-          newDiv.appendChild(newDivParametre);
-          newDiv.appendChild(newDivValeur);
-          newDiv.appendChild(newDivValeurTheorique);
-          */
+      var newDivParametre = document.createElement("div");
+      var newContent = document.createTextNode(nomTypicalParametre + " : ");
+      newDivParametre.style = "text-align:right";
+      newDivParametre.style.gridColumn = "2";
+      newDivParametre.appendChild(newContent);
 
-          var newDivLogo = document.createElement("div");
-          newDivLogo.style.margin = "auto";
-          newDivLogo.style.width = "10px";
-          newDivLogo.style.height = "10px";
-          newDivLogo.style.borderRadius = "5px";
-          newDivLogo.style.gridColumn = "1";
+      var newDivValeur = document.createElement("textarea");
+      newDivValeur.addEventListener("blur", function () {
+        // Vérifier si la touche "Ctrl" et la touche "E" sont enfoncées simultanément
+        enregistrerValeursTextarea();
+      });
+      newDivValeur.rows = 1;
+      newDivValeur.cols = 20;
 
-          var newDivParametre = document.createElement("div");
-          var newContent = document.createTextNode(nomTypicalParametre+" : ");
-          newDivParametre.style = "text-align:right";
-          newDivParametre.style.gridColumn = "2";
-          newDivParametre.appendChild(newContent);
+      newDivValeur.style.resize = "none";
+      newDivValeur.style.gridColumn = "3";
+      newDivValeur.style.marginLeft = "2px";
+      newDivValeur.style.marginRight = "2px";
+      newDivValeur.style.width = "60px";
+      newDivValeur.style.height = "22px";
 
-          var newDivValeur = document.createElement("div");
-          newDivValeur.style.gridColumn = "3";
-          newDivValeur.style.marginLeft = "2px";
-          newDivValeur.style.marginRight = "2px";
-          //newDivValeur.style.borderRight = "1px solid black";
+      // Récupérez la valeur actuelle et ajoutez-la à ancienneValeur
 
-          var url = 'https://vmicro.fr/database/BDD_1.0/API/api.php?action=getLastMesure&ID_Composant='+idComposantMemory+'&ID_Caracteristique='+typicalMesure.results[0]["ID_Caracteristique"][indexTypicalParametre];
-          ajaxGet(url,function(reponseLastMesure){
-            lastMesure = JSON.parse(reponseLastMesure);
-            console.log("LE 2");
-            console.log(lastMesure);
-            if(lastMesure.results[0] === null){
-              console.log("il n'y a pas de derniere mesure");
-              newDivLogo.style.background = "red";
-              var newContent = document.createTextNode("...." +typicalMesure.results[0]["Unite"][indexTypicalParametre]);
-              newDivValeur.appendChild(newContent);
-            }
-            else {
-              console.log(lastMesure.results[0]["Valeur"][0]);
-              newDivLogo.style.background = "green";
-              var newContent = document.createTextNode(lastMesure.results[0]["Valeur"][0]+typicalMesure.results[0]["Unite"][0]);
-              newDivValeur.appendChild(newContent);
-            }
-          });
+      newDivValeurs.push(newDivValeur);
 
-          var newDivValeurTheorique = document.createElement("div");
-          newDivValeurTheorique.style.gridColumn = "4";
-          newDivValeurTheorique.style.marginLeft = "2px";
-          newDivValeurTheorique.style.marginRight = "2px";
-          newDivValeurTheorique.style.color = "555555";
+      var url =
+        'https://vmicro.fr/database/BDD_1.0/API/api.php?action=getLastMesure&ID_Composant=' +
+        idComposantMemory +
+        '&ID_Caracteristique=' +
+        typicalMesure.results[0]["ID_Caracteristique"][indexTypicalParametre];
 
-          var newContent = document.createTextNode("["+typicalMesure.results[0]["Valeur"][indexTypicalParametre]+"\u00a0"+typicalMesure.results[0]["Unite"][indexTypicalParametre]+"]");
-          newDivValeurTheorique.appendChild(newContent);
+      ajaxGet(url, function (reponseLastMesure) {
+        var lastMesure = JSON.parse(reponseLastMesure);
+        console.log("LE 2");
+        console.log(lastMesure);
+        if (lastMesure.results[0] === null) {
+          console.log("il n'y a pas de dernière mesure");
+          newDivLogo.style.background = "red";
+          var newContent = document.createTextNode("");
+          newDivValeur.appendChild(newContent);
+          ancienneValeur[newIndex] = ""; // Stockez la valeur vide dans le tableau
+          console.log("ancienneval", ancienneValeur);
+        } else {
+          console.log(lastMesure.results[0]["Valeur"][0]);
+          newDivLogo.style.background = "green";
+          var newContent = document.createTextNode(
+            lastMesure.results[0]["Valeur"][0]
+          );
+          newDivValeur.appendChild(newContent);
+          ancienneValeur[newIndex] = lastMesure.results[0]["Valeur"][0]; // Stockez la valeur dans le tableau
+          console.log("ancienneval", ancienneValeur);
+        }
+      });
 
-          newDiv.appendChild(newDivLogo);
-          newDiv.appendChild(newDivParametre);
-          newDiv.appendChild(newDivValeur);
-          newDiv.appendChild(newDivValeurTheorique);
+      var newDivValeurTheorique = document.createElement("div");
+      newDivValeurTheorique.style.gridColumn = "4";
+      newDivValeurTheorique.style.marginLeft = "2px";
+      newDivValeurTheorique.style.marginRight = "2px";
+      newDivValeurTheorique.style.color = "555555";
 
-          conteneur.appendChild(newDiv);
+      var newContent = document.createTextNode(
+        "[" +
+          typicalMesure.results[0]["Valeur"][indexTypicalParametre] +
+          "\u00a0" +
+          typicalMesure.results[0]["Unite"][indexTypicalParametre] +
+          "]"
+      );
+      newDivValeurTheorique.appendChild(newContent);
 
-          
-        });
-    } 
+      newDiv.appendChild(newDivLogo);
+      newDiv.appendChild(newDivParametre);
+      newDiv.appendChild(newDivValeur);
+      newDiv.appendChild(newDivValeurTheorique);
+
+      gridDiv.appendChild(newDiv);
+      index++;
+
+      if (index % 3 === 0) {
+        // Si nous avons atteint 3 lignes, répliquez les en-têtes
+        enteteDiv = creerEntete();
+        conteneur.appendChild(gridDiv);
+        gridDiv = document.createElement("div");
+        gridDiv.style.display = "grid";
+        gridDiv.style.gridTemplateColumns = "repeat(auto-fill, minmax(300px, 1fr))";
+        gridDiv.style.gridGap = "10px";
+      }
+    });
+
+    // Ajouter le dernier grid si nécessaire
+    if (gridDiv.childNodes.length > 0) {
+      conteneur.appendChild(gridDiv);
+    }
   });
-  /*
-  newDiv.innerHTML="";
-  conteneur.innerHTML="";
-  newDivLogo.innerHTML="";
-  newDivParametre.innerHTML="";
-  newDivValeur.innerHTML="";
-  newDivValeurTheorique.innerHTML="";
-  newEnteteDiv.innerHTML="";
-  newDivEnteteDefault.innerHTML="";
-  newDivEnteteLogo.innerHTML="";
-  newDivEnteteParametre.innerHTML="";
-  */
+
+  // Vous pouvez maintenant accéder à typicalMesure en dehors de la fonction de rappel
+  // Par exemple, ici vous pouvez l'utiliser ou appeler une autre fonction avec typicalMesure comme argument.
+  // enregistrerValeursTextarea();
 }
+
+
+
+
+
+
+function modifierMesures() {
+  var nouvelleValeur = newDivValeur.value;
+  var idCaract = typicalMesure.results[0]["ID_Caracteristique"][indexTypicalParametre];
+
+  // Vous pouvez maintenant effectuer une action pour sauvegarder la nouvelle valeur, par exemple en utilisant une requête AJAX POST
+  var url = 'https://vmicro.fr/database/BDD_1.0/API/api.php';
+  var data = new FormData();
+  data.append('action', 'updateMesure'); // Action pour mettre à jour la valeur
+  data.append('id_comp', idComposantMemory);
+  data.append('id_carac', idCaract); // Utilisez l'ID du caractéristique correspondant à cette textarea
+  data.append('valeur', nouvelleValeur);
+
+  ajaxPost(url, data, function (reponse) {
+    console.log(reponse);
+    // Vous pouvez également ajouter un retour visuel pour indiquer que la valeur a été sauvegardée
+    $(".check-icon").hide();
+    setTimeout(function () {
+      $(".check-icon").show();
+    }, 10);
+});
+affichageLastMesure(conteneur);
+}
+function enregistrerValeursTextarea() {
+  newDivValeurs.forEach((textarea, index) => {
+    var anciennevaleur = ancienneValeur[index];
+    var valeurTextarea = textarea.value;
+    var idCaract = typicalMesure.results[0]["ID_Caracteristique"][index];
+
+    console.log("valeur", valeurTextarea, "carac", idCaract, "ancienne", ancienneValeur[index]);
+
+    if (valeurTextarea != anciennevaleur) {
+      // Vérifier si ancienneValeur[index] est vide
+      if (ancienneValeur[index] === "") {
+        // Si c'est vide, faites l'action "addMesure"
+        var url = 'https://vmicro.fr/database/BDD_1.0/API/api.php';
+        var data = new FormData();
+        data.append('action', 'addMesure'); // Action pour ajouter la valeur
+        data.append('id_comp', idComposantMemory);
+        data.append('id_carac', idCaract); // Utilisez l'ID du caractéristique correspondant à cette textarea
+        data.append('valeur', valeurTextarea);
+
+        ajaxPost(url, data, function (reponse) {
+          console.log(reponse);
+          // Vous pouvez également ajouter un retour visuel pour indiquer que la valeur a été ajoutée
+          $(".check-icon").hide();
+          setTimeout(function () {
+            $(".check-icon").show();
+          }, 10);
+        });
+      } else {
+        // Sinon, faites l'action "updateMesure"
+        var url = 'https://vmicro.fr/database/BDD_1.0/API/api.php';
+        var data = new FormData();
+        data.append('action', 'updateMesure'); // Action pour mettre à jour la valeur
+        data.append('id_comp', idComposantMemory);
+        data.append('id_carac', idCaract); // Utilisez l'ID du caractéristique correspondant à cette textarea
+        data.append('valeur', valeurTextarea);
+
+        ajaxPost(url, data, function (reponse) {
+          console.log(reponse);
+          // Vous pouvez également ajouter un retour visuel pour indiquer que la valeur a été mise à jour
+          $(".check-icon").hide();
+          setTimeout(function () {
+            $(".check-icon").show();
+          }, 10);
+        });
+      }
+
+      // Mettez à jour ancienneValeur[index]
+      ancienneValeur[index] = valeurTextarea;
+    }
+
+    console.log("okayletsgo");
+  });
+  affichageLastMesure(listMesure);
+}
+
+
+
+
+
+
 function creationLienModifTheoricalValue(type_c){
   //console.log(type_composant);
   //console.log(lienModifTheoricalValue);
@@ -1124,14 +1022,14 @@ colonne4.addEventListener('mouseout', ()=>{
   survolePasRepresentationComposant();
 });
 
-divClient.addEventListener('mouseout', ()=>{
+/*divClient.addEventListener('mouseout', ()=>{
   survolPasClient();
 });
 
 divClient.addEventListener("mouseover", ()=>{
   survolClient();
 });
-
+*/
 function survolClient(){
   affichageNomClient.style.display="block";
   affichageClientSecret.style.display="none";
@@ -1166,6 +1064,7 @@ function survolePasRepresentationComposant(){
       composantSelect.style.backgroundColor = "F06400";
     }
     affichageTypeComposantSurvol.innerHTML ="";
+    affichageNomComposantSurvol.innerHTML="";
   }
   //divTypeComposantSurvol.style.display = "none";
 }
@@ -1202,33 +1101,98 @@ function survolReticule(e){
 function survolComposant(e,retx,rety){ // Lorsque l'on survol un composant
   divTypeComposantSurvol.style.display = "block";
 
-  if(composantSurvol){
-    composantSurvol.style.backgroundColor = "white";
-  }
+  
   composantSurvol = e.target;
   composantSelect.style.backgroundColor = "#F06400";
   composantSurvol.style.backgroundColor = "red";
 
   //console.log(e.target.id.substr(9,1));
   //console.log(e.target.id.substr(10,1));
-  remplissageTypeComposantSurvol(affichageTypeComposantSurvol, variableGlobaleStockageRequeteComposant, e.target.id.substr(9,1), e.target.id.substr(10,1),retx,rety);
+  remplissageTypeComposantSurvol(affichageTypeComposantSurvol,affichageNomComposantSurvol, variableGlobaleStockageRequeteComposant, e.target.id.substr(9,1), e.target.id.substr(10,2),retx,rety);
 
 }
+function survolComposant1(e,retx,rety){ // Lorsque l'on survol un composant
+  divTypeComposantSurvol.style.display = "block";
+
+  if(composantSurvol){
+    composantSurvol.style.backgroundColor = "white";
+  }
+  affichageNomComposantSurvol.innerHTML  ="";
+  affichageTypeComposantSurvol.innerHTML ="";
+
+  //console.log(e.target.id.substr(9,1));
+  //console.log(e.target.id.substr(10,1));
+  
+
+}
+
+function simuclickcomp(simuclick) {
+  var element = document.getElementById(simuclick);
+  console.log('simuclicktransfer', simuclick);
+  // Vérifier si l'élément existe
+  if (element) {
+    // Créer un nouvel événement de clic
+    var event = new MouseEvent('click', {
+      bubbles: true,
+      cancelable: true,
+      view: window
+    });
+
+    // Dispatch l'événement sur l'élément
+    element.dispatchEvent(event);
+
+    // Appeler la fonction clickComposant en passant l'événement et les autres arguments requis
+    clickComposant(event);
+  }
+}
+
+
+
 function clickComposant(e,retx,rety){ // Lorsque l'on clique sur un composant
-  //console.log(e.target);
+  console.log('target',e.target);
+  
+  
   composantSelect.style.backgroundColor = "white";
   composantSelect = e.target;
   composantSelect.style.backgroundColor = "#F06400";
+  
 
-  //console.log(e.target.id.substr(9,e.target.id.length));
+  
+  console.log("targetlengt",e.target.id.substr(9,e.target.id.length));
   selecteurComposant.value = e.target.id.substr(9,e.target.id.length);
 
   remplissageTypeComposant(affichageTypeComposant, variableGlobaleStockageRequeteComposant,retx,rety);
   affichageTypeComposant.style.fontSize = "12px";
+  
+  handleSelectButton(composantSelect);
 }
 
 function clickReticule(e){ // Lorsque l'on clique sur un réticule
-  console.log(e.target);
+  console.log("la target",e.target);
+  console.log("leret",reticuleSelect);
+  var oldret=reticuleSelect;
+  reticuleSelect = e.target;  
+  console.log("leret2",reticuleSelect);
+  var positionXReticuleSelect = parseInt(reticuleSelect.id.substr(8, 1), 16);
+  var positionYReticuleSelect = parseInt(reticuleSelect.id.substr(9, 1), 16);
+
+  // Parcourir les composants pour trouver le premier composant dans le réticule
+  for (var indexComposant = 0; indexComposant < variableGlobaleStockageRequeteComposant['Nom_Type_C'].length; indexComposant++) {
+    if (
+      variableGlobaleStockageRequeteComposant['Pos_X_Ret'][indexComposant] === positionXReticuleSelect &&
+      variableGlobaleStockageRequeteComposant['Pos_Y_Ret'][indexComposant] === positionYReticuleSelect
+    ) {
+      composantSelect = document.getElementById(
+        'composant' +
+          variableGlobaleStockageRequeteComposant['Coord_X_C'][indexComposant] +
+          variableGlobaleStockageRequeteComposant['Coord_Y_C'][indexComposant]
+      );
+      // Récupérer l'ID du premier composant dans le réticule
+      var idPremierComposant = composantSelect.id;
+      console.log('ID du premier composant : ' + idPremierComposant);
+      break;
+    }
+  }
 
   var value_X = parseInt(reticuleSurvol.id.substr(8,1),16);
   var value_Y = parseInt(reticuleSurvol.id.substr(9,1),16); // On regarde la valeur de Y à partir de l'id du réticule sélectionné
@@ -1236,13 +1200,14 @@ function clickReticule(e){ // Lorsque l'on clique sur un réticule
   var value_X_select = parseInt(reticuleSelect.id.substr(8,1),16);
   var value_Y_select = parseInt(reticuleSelect.id.substr(9,1),16); // On regarde la valeur de Y à partir de l'id du réticule sélectionné
   var valeurTableau_select = (value_Y_select-1)*maxY_Ret + value_X_select - 1;
-  reticuleSelect.style.backgroundColor = bufferCouleurReticule[valeurTableau_select];
+  oldret.style.backgroundColor = bufferCouleurReticule[valeurTableau_select];
+  console.log("leretcoul", oldret.style.backgroundColor);
  
   var valeurTableau = (value_Y-1)*maxY_Ret + value_X - 1;
   previousValeurTableau = valeurTableau;
   //console.log(reticuleSurvol.id+" va prendre la couleur : "+ bufferCouleurReticule[valeurTableau] +"(index numero : "+valeurTableau+")");
   
-  console.log("mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmhhhhh");
+  console.log("mmhhhhh");
   console.log(value_X);
   console.log(value_Y);
   console.log(valeurTableau);
@@ -1256,19 +1221,25 @@ function clickReticule(e){ // Lorsque l'on clique sur un réticule
   
   selecteurReticule.value = String(value_X) +"/"+ String(value_Y);
   console.log(selecteurReticule.value);
+  var event = new CustomEvent('reticuleSelected', { detail: { reticule: reticuleSelect } });
+  document.dispatchEvent(event);
 
   remplissageNomTypeReticule(affichageTypeReticule, value_X, value_Y, variableGlobaleStockageRequeteComposant);
   remplissageSelecteurComposant(selecteurComposant, variableGlobaleStockageRequeteComposant);
 }
 
 selecteurComposant.addEventListener('change', changementComposant);
+
 selecteurReticule.addEventListener('change', changementReticule);
+var event = new CustomEvent('reticuleSelected', { detail: { reticule: reticuleSelect } });
+  document.dispatchEvent(event);
 
 function changementComposant(){
   composantSelect.style.backgroundColor = "white";
   composantSelect = document.getElementById("composant"+selecteurComposant.value);
+  console.log("seleccomp",composantSelect);
   composantSelect.style.backgroundColor = "#F06400";
-
+  handleSelectcomp(composantSelect);
   setTimeout(function(){
     remplissageTypeComposant(affichageTypeComposant, variableGlobaleStockageRequeteComposant,parseInt(reticuleSelect.id.substr(8,1),16),parseInt(reticuleSelect.id.substr(9,1),16));
   },300);
@@ -1295,43 +1266,15 @@ function changementReticule(){
   
   console.log("dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd");
   console.log(("reticule"+ String(parseInt(selecteurX).toString(16)) + String(parseInt(selecteurY).toString(16))));
-  /*
-  if (selecteurReticule.value.length==4){reticuleSelect = document.getElementById("reticule"+ String(selecteurReticule.value.substr(0,2)) + String(reticuleSelect.id.substr(2,2)));}
-  else if (selecteurReticule.value.length==3){reticuleSelect = document.getElementById("reticule"+ String(reticuleSelect.id.substr(8,1)) + String(reticuleSelect.id.substr(9,1)));}
-  else if (selecteurReticule.value.length==2){reticuleSelect = document.getElementById("reticule"+ String(reticuleSelect.id.substr(8,1)) + String(reticuleSelect.id.substr(9,1)));}
-  else{reticuleSelect = document.getElementById("reticule"+ String(reticuleSelect.id.substr(8,1)) + String(reticuleSelect.id.substr(9,1)));}
-  */
+
   nomWafer=selecteurWafer.value;
   var url = 'https://vmicro.fr/database/BDD_1.0/API/api.php?action=getComponentOnWaferImprove&nom_wafer='+nomWafer;
   console.log(url);
   
-  // ajaxGet(url, function(reponseComponentList){
-  //   listComponent = JSON.parse(reponseComponentList);
-  //   console.log(listComponent);
-  //   console.log(listComponent['results'][0]);
-    // try{ 
+  
       reticuleSelect = document.getElementById("reticule"+ String(parseInt(selecteurX).toString(16)) + String(parseInt(selecteurY).toString(16)));
-      //reticuleSelect.style.backgroundColor = "#F06400";
-    // }
-    // catch(TypeError){
-    //   option.value = listComponent['results'][0]['Pos_X_Ret'][0]+"/"+listComponent['results'][0]['Pos_Y_Ret'][0]; // On défini la valeur de l'option comme étant le x et y du première élément de contenu
-    //   console.log(option.value);
-    //   reticuleSelect.appendChild(option); // on ajoute l'option au conteneu
-    //   reticuleSelect.style.backgroundColor = "#F06400";
-    // }
-    
-
-  //});
+      
   
-  
-  // try{ 
-    
-  // }
-  // catch(TypeError){
-  //   reticuleSelect = document.getElementById("reticule55");
-  //   selecteurReticule.value="5/5";
-  // }
-
   remplissageNomTypeReticule(affichageTypeReticule, value_X, value_Y, variableGlobaleStockageRequeteComposant);
   remplissageSelecteurComposant(selecteurComposant, variableGlobaleStockageRequeteComposant);
 }
@@ -1344,7 +1287,6 @@ function remplissageEtatDuComposant(idComposant){ // Fonction permettant le remp
 
   var vivant = document.getElementById("waferVivant");
   var mort = document.getElementById("waferMort");
-
   var url = 'https://vmicro.fr/database/BDD_1.0/API/api.php?action=getEtatComposant&ID_Component='+idComposant; // On indique le lien pour la requête
   console.log(url); // On affiche le lien (Optionnel)
   ajaxGet(url, function(reponseEtat){ // On fait une requête get
@@ -1404,7 +1346,7 @@ selecteurProjet.addEventListener('change', ()=>{ // Si le sélecteur de projet c
   variableGlobaleStockageRequeteProjetList["Nom_projet"].forEach((nomProjet, indexProjet) => {
     if(nomProjet == selecteurProjet.value)
     {
-      remplissageNomClient(affichageNomClient ,listProjet.results[0]["id_client"][indexProjet]);
+      //remplissageNomClient(affichageNomClient ,listProjet.results[0]["id_client"][indexProjet]);
       console.log("remplissageSelecteurWafer");
       remplissageSelecteurWafer(selecteurWafer, listProjet.results[0]["Nom_projet"][indexProjet],null);
     }
@@ -1445,10 +1387,12 @@ etatWafer.forEach((item, i) => { //On parcours tous les boutons radio de nom :"e
 mortWafer.forEach((item, i) => { // On parcours tous les boutons radion de nom :"mortWafer"
   //console.log(item);
   item.addEventListener('click',()=>{
+    retclick=reticuleSelect;
+    console.log("reticuleselected",retclick);
     console.log("Changement 2 = "+item.value);
     var url = "https://vmicro.fr/database/BDD_1.0/API/api.php?action=updateEtat2&id_comp="+idComposantMemory+"&valeur="+item.value;
     ajaxGet(url, function(reponseUpdateEtat2){
-      //console.log(reponseUpdateEtat2);
+      console.log("reponseupdate",reponseUpdateEtat2);
       //Il faut asbolument recharger la variable globale pour actualisé la valeur de la vie des composants
       variableGlobaleStockageRequeteWaferByNameProject["Nom_Wafer"].forEach((nomWafer, indexWafer) => {
         if(nomWafer == selecteurWafer.value){
@@ -1458,6 +1402,8 @@ mortWafer.forEach((item, i) => { // On parcours tous les boutons radion de nom :
         }
       });
       creationGridComposant(representationComposant, parseInt(maxX_C), parseInt(maxY_C));
+      
+     
     });
   });
 });
@@ -1531,5 +1477,43 @@ traitement.addEventListener('keydown',(event)=>{
     });
   }
 });
+document.addEventListener("DOMContentLoaded", function () {
+  const toggleButton = document.getElementById("toggleButton");
+  const menuBar = document.getElementById("menuBar");
+  const ligneNavigation =document.getElementById("ligneNav");
+  const sidebar =document.getElementById("sidebar");
+  const toggleButton2 = document.getElementById("toggleButton2");
+  toggleButton.addEventListener("click", function () {
+    
+      if (menuBar.style.display != "none") {
+        menuBar.style.display = "none";
+        ligneNavigation.style.position="fixed";
+        ligneNavigation.style.marginLeft="350px";
+        ligneNavigation.style.marginTop="0";
+        sidebar.style.position="fixed";
+        sidebar.style.marginTop="0";
+    } else {
+      menuBar.style.display = "flex";
+      menuBar.style.alignItems="flex-start";
+      ligneNavigation.style.position="inherit";
+      ligneNavigation.style.marginLeft="0";
+      ligneNavigation.style.marginTop="8%";
+      sidebar.style.position="inherit";
+      sidebar.style.marginTop="7%";
+    }
+  });
+  toggleButton2.addEventListener("click", function () {
+    
+    if (ligneNavigation.style.visibility != 'hidden') {
+      ligneNavigation.style.visibility = 'hidden';
+      container.style.marginTop="10px";
+
+  } else {
+    ligneNavigation.style.visibility = 'visible';
+    container.style.marginTop="100px";
+  }
+});
+});
+
 
 start();

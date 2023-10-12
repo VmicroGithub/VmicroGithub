@@ -9,10 +9,10 @@
 <input type="hidden"  id="firstNameUser" value="<?php echo$_SESSION['prenom']; ?>">
 <input type="hidden"  id="lastNameUser" value="<?php echo$_SESSION['nom']; ?>">
 <input type="hidden"  id="idUser" value="<?php echo$_SESSION['id_user']; ?>">
+<div id="sidebar">
 
-<div class="ligneNavigation">
-  <div id="colonne1" class="colonne">
-    <div>
+  <div id="ligne1" class="ligne">
+  <div>
       <label>Projet : </label>
       <select id="selecteurProjet">
         <!--
@@ -22,6 +22,32 @@
         -->
       </select>
     </div>
+    <div>
+      <label>Wafer :</label>
+      <select id="selecteurWafer">
+        <!--<option>Wafer 1-1</option>-->
+      </select>
+      <label contenteditable="true" id="traitement">Aucun traitement</label>
+    </div>
+  </div>
+  <div id="ligne2" class= "ligne">
+    <div id="divTypeReticuleSurvol">
+      <div>
+        <label> Type : </label>
+        <label id = "affichageTypeReticuleSurvol"></label>
+      </div>
+      <div>
+        <label> Reticule : </label>
+        <label id = "affichageCoordReticuleSurvol"><label>
+      </div>
+    </div>
+    <div id="representationReticule"></div>
+    <div id="legendeCouleur"></div>
+  </div>
+</div>
+<div class="ligneNavigation">
+  <div id="colonne1" class="colonne">
+    
 
     <div>
       <label>Wafer :</label>
@@ -162,5 +188,5 @@
 
 
 <script src="../AJAX/ajax.js"></script>
-<script src="navComposant3.js"
+<script src="navComposant3.js"></script>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>

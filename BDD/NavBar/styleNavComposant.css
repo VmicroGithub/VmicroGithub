@@ -1,19 +1,85 @@
 body{
-  margin: 0px;
+  margin: 0;
+  padding: 0;
+}
+.tab
+{
+    border : solid 1px grey;
+    background-color : rgb(240,220,240);
+    padding : 5px;
+}
+#historique {
+  margin-left: 20%;
+
+}
+
+#content_2 {
+  margin-left: 20%;
+  margin-top: 7%;
+  padding: 20px;
 }
 #conteneurMenu{
   position: fixed;
   width: 100%;
 }
+#sidebar {
+  position: fixed;
+  margin-top:7% ;
+  top: 0px;
+  left: 0;
+  bottom: 0;
+  width: 350px;
+  background-color: #65A993;
+}
+.indicator {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  display: inline-block;
+  margin-left: 5px;
+  background-color: green; /* Couleur initiale (composant actif) */
+  transition: background-color 0.2s; /* Transition pour la couleur */
+}
+
+.ligne{
+ margin :0;
+  margin: 5px;
+}
+#ligne2{
+  height: 25%;
+  display: grid;
+   
+}
+#ligne1{
+  margin-top: 20%;
+  border-bottom: solid 1px black;
+
+  display: grid;
+}
+#ligne3{
+  margin-top: 170px;
+  border-bottom: solid 1px black;
+  border-top: solid 1px black;
+
+  display: grid;
+}
+#ligne4{
+  border-bottom: solid 1px black;
+  display: grid;
+}
+
 .ligneNavigation{
   width: 100%;
+  margin-top: 7%;;
+  margin-left: 350px;
   display: inline-flex;
   background-color: #65A993;
-  /*
-  position: sticky;
-  top: 0px;
+ z-index: 1;
+ visibility :'visible';
+  position: fixed;
+  
   left:0px;
-  */
+  top: 0px;
 }
 .colonne{
   width: 25%;
@@ -23,11 +89,15 @@ body{
   /*border: 1px red solid;*/
   border-right: solid 1px black;
   display: grid;
+  width: 95%;
+
+  
 }
 #colonne2{
   /*border: 1px green solid;*/
   border-right: solid 1px black;
   display: grid;
+  width: 2%;
 }
 #colonne3{
   /*border: 1px blue solid;*/
@@ -35,6 +105,7 @@ body{
 }
 #colonne4{
   /*border: 1px yellow solid;*/
+  width: 3%;
 }
 #divTypeComposantSurvol{
   display: block;
@@ -45,7 +116,13 @@ body{
 }
 #mainPageAffichageComposant{
   display: grid;
+  
 }
+#mainPageAffichageComposant2{
+  display: grid;
+  
+}
+
 #ligneRetCompC1{
   display: grid;
   grid-template-columns: repeat(2,1fr);

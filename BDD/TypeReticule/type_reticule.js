@@ -243,11 +243,16 @@ window.addEventListener('resize', ()=>{
     tailleRect = tailleX_Fenetre*0.9;
   }
   console.log(tailleRect);
-  reticule.style.height = tailleRect +'px';
-  reticule.style.width = tailleRect + 'px';
+  //reticule.style.height = tailleRect +'px';
+  //reticule.style.width = tailleRect + 'px';
+
+  
 
   tailleRepresentationComposantX = (tailleRect/tailleX)-(2*10);
   tailleRepresentationComposantY = (tailleRect/tailleY)-(2*10);
+
+  //reticule.style.height = tailleRepresentationComposantY*tailleY +'px';
+  //reticule.style.width = tailleRepresentationComposantX*tailleX + 'px';
 
   console.log(tailleRepresentationComposantX);
   console.log(tailleRepresentationComposantY);
@@ -302,11 +307,17 @@ function createRepresentationComponent()
     tailleRect = tailleX_Fenetre*0.9;
   }
   console.log(tailleRect);
-  reticule.style.height = tailleRect +'px';
-  reticule.style.width = tailleRect + 'px';
+  //reticule.style.height = tailleRect +'px';
+  //reticule.style.width = tailleRect + 'px';
 
   tailleRepresentationComposantX = (tailleRect/tailleX)-(2*10);
   tailleRepresentationComposantY = (tailleRect/tailleY)-(2*10);
+
+  //currentDiv.style.height = tailleRepresentationComposantY*tailleY +'px';
+  //currentDiv.style.width = tailleRepresentationComposantX*tailleX + 'px';
+
+  //reticule.style.height = tailleRepresentationComposantY*tailleY +'px';
+  //reticule.style.width = tailleRepresentationComposantX*tailleX + 'px';
 
   console.log(url);
   ajaxGet(url, function(reponse){
@@ -359,7 +370,7 @@ function createRepresentationComponent()
         //console.log(tailleRepresentationComposantX);
         //console.log(tailleRepresentationComposantY);
         newDiv.style.width = tailleRepresentationComposantX+'px';
-        newDiv.style.height = tailleRepresentationComposantY+'px';
+        newDiv.style.height = tailleRepresentationComposantY+40+'px';
 
         currentDiv.appendChild(newDiv);
         /*
@@ -376,6 +387,7 @@ function createRepresentationComponent()
       }
 
       currentDiv.appendChild(retourLigne.cloneNode(true));
+      
     }
   });
 }

@@ -19,6 +19,7 @@ const navSlide = () => {
   });
 
 }
+
 function slideConnection(){
   const account = document.querySelector('.avatar');
   const barConnexion = document.querySelector('.connectElement');
@@ -65,6 +66,8 @@ function start(){
       }
     });
 }
+
+
 
 navSlide();
 start();

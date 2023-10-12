@@ -276,16 +276,16 @@ function createMapReticule(){
   else {
     taille =  760;
   }
-  Cercle.style.width = taille + "px";
-  Cercle.style.height = taille + "px";
-  document.getElementById("section4").style.height = (taille+180) + "px";// On rajoute
+  Cercle.style.width = nbRetX*50 + "px";
+  Cercle.style.height = nbRetY*50  + nbRetY*3 + "px";
+  document.getElementById("section4").style.height = (nbRetY*50+180) + "px";// On rajoute
 
-  Cercle.style.marginLeft =(((window.innerWidth*0.8)-taille)/2) + "px";
+  //Cercle.style.marginLeft =(((window.innerWidth*0.8)-taille)/2) + "px";
+  //divInsertionMap.style.marginLeft =(((window.innerWidth*0.99)-taille)/2) + "px";
   console.log(window.innerWidth*0.8);
   console.log((((window.innerWidth*0.8)-taille)/2));
 
-  divInsertionMap.style.marginLeft = (((window.innerWidth*0.8)-(nbRetX*tailleDeLaDiv))/2) + "px";
-  divInsertionMap.style.marginTop = (taille+20-(nbRetY*tailleDeLaDiv))/2 + "px";
+  
 
 }
 
@@ -293,6 +293,9 @@ function createDiv(x, y, conteneur){ // Fonction permettant de créer une nouvel
   var newDiv = document.createElement("div");
   newDiv.id = "id"+((x).toLocaleString('en-US', {minimumIntegerDigits: 2, useGrouping:false}))+((y).toLocaleString('en-US', {minimumIntegerDigits: 2, useGrouping:false}));
   newDiv.className = "reticule";
+  newDiv.style.width = "50px";
+  newDiv.style.height = "50px";
+
   conteneur.appendChild(newDiv);
 
   return newDiv;
@@ -586,8 +589,8 @@ next1.addEventListener('click', function() {
     createMapReticule();
 
     window.addEventListener('resize', ()=>{
-      divInsertionMap.style.marginLeft = (((window.innerWidth*0.8)-(nbRetX*tailleDeLaDiv))/2) + "px";
-      Cercle.style.marginLeft =(((window.innerWidth*0.8)-taille)/2) + "px";
+      //divInsertionMap.style.marginLeft = (((window.innerWidth*0.8)-(nbRetX*tailleDeLaDiv))/2) + "px";
+      //Cercle.style.marginLeft =(((window.innerWidth*0.8)-taille)/2) + "px";
     });
 
     boutonValide.addEventListener('click', ()=>{

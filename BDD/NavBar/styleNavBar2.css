@@ -3,6 +3,12 @@
   margin: 0px;
   padding: 0px;
 }
+#menuBar {
+  z-index: 1;
+  /* Styles de la barre de navigation */
+}
+
+
 
 body{
   justify-content: center;
@@ -256,4 +262,3 @@ header{
 .form-container .btn:hover, .open-button:hover {
   opacity: 1;
 }
-

@@ -2,10 +2,34 @@
     width: 80px;
     height: 115px;
     margin: 0 auto;
-    //grid-column-start: 8;
-    //grid-column-end: 10;
+    /*grid-column-start: 8;
+    /grid-column-end: 10;*/
     margin-top: 50px;
 }
+#buttonContainer {
+  display: flex; /* Utilisation de Flexbox pour placer les boutons côte à côte */
+}
+
+#toggleButton {
+  background-color: #333;
+  color: #fff;
+  border: none;
+  padding: 5px; /* Réduire la hauteur en ajustant la valeur du padding */
+  width: 40%;
+  text-align: center;
+  font-size: 12px;
+}
+
+#toggleButton2 {
+  background-color: #333;
+  color: #fff;
+  border: none;
+  padding: 5px; /* Réduire la hauteur en ajustant la valeur du padding */
+  width: 60%;
+  text-align: center;
+  font-size: 12px;
+}
+
 
 .success-checkmark .check-icon
 {

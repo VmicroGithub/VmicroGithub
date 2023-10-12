@@ -19,7 +19,7 @@
 
     .modal-content {
       background-color: #fefefe;
-      margin: 5% auto 10% auto; // 5% from the top, 15% from the bottom and centered
+      margin: 15% auto 10% auto; // 5% from the top, 15% from the bottom and centered
       border: 1px solid #888;
       width: 80%; // Could be more or less, depending on screen size
     }
@@ -77,13 +77,9 @@
        display: none;
     }
     #circle {
-      position: absolute;
+      margin : 0 auto;
       border-radius: 50%;
       border: 1px solid black;
-      height: 0px;
-      margin: 0px auto;
-      pointer-events: none; //Permet de cliquer
-      z-index: 2;
     }
     #conteneurReticule{
       position: auto;
@@ -94,6 +90,15 @@
       width: 100px;
       display: inline-block;
       border: 1px solid black;
+    }
+
+    #conteneurMap{
+      position: absolute;
+      margin : 0 auto;
+    }
+
+    #section4{
+      position: relative;
     }
 
     </style>
@@ -174,8 +179,9 @@
       </div>
       <div class="modal-content" id="section4">
         <div id="legende"></div>
-        <div id="circle"></div>
-        <div id="conteneurMap"></div>
+        <div id="circle">
+          <div id="conteneurMap"></div>
+        </div>
       </div>
 
       <div class="modal-content" id="section3">

@@ -9,7 +9,37 @@
 <input type="hidden"  id="firstNameUser" value="<?php echo$_SESSION['prenom']; ?>">
 <input type="hidden"  id="lastNameUser" value="<?php echo$_SESSION['nom']; ?>">
 <input type="hidden"  id="idUser" value="<?php echo$_SESSION['id_user']; ?>">
+<div id="sidebar">
+  <div id="ligne1" class="ligne">
+  <div>
+      <label>Projet : </label>
+      <select id="selecteurProjet">
+        <!--
+        <option>Projet A</option>
+        <option>Projet B</option>
+        <option>Projet C</option>
+        -->
+      </select>
+    </div>
+    <div>
+      <label>Wafer :</label>
+      <select id="selecteurWafer">
+        <!--<option>Wafer 1-1</option>-->
+      </select>
+    </div>
 
+  </div>
+  <div id="ligne2" class= "ligne">
+    <div id="divTypeReticuleSurvol">
+      <label> Type : </label>
+      <label id = "affichageTypeReticuleSurvol"></label>
+      <br>
+      <label> Reticule : </label>
+      <label id = "affichageCoordReticuleSurvol"><label>
+    </div>
+    <div id="representationReticule"></div>
+  </div>
+</div>
 <div class="ligneNavigation">
   <div id="colonne1" class="colonne">
     <div>

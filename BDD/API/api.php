@@ -900,6 +900,71 @@
     }
   }
 
+  
+  if ($_GET['action'] == 'getLinkPictureWithIDcompList') {
+    if (isset($_GET['ID_components'])) {
+        // Récupérez la liste des ID de composants depuis la requête GET
+        $ID_components = explode(',', $_GET['ID_components']);
+
+        // Créez une chaîne de placeholders pour les ID de composants
+        $placeholders = implode(',', array_fill(0, count($ID_components), '?'));
+
+        // Préparez la requête SQL avec les placeholders
+        $sql = "SELECT Chemin, Extension, ID_Composant FROM image WHERE ID_Composant IN ($placeholders) ORDER BY ID_Composant";
+
+        // Créez une requête préparée
+        $stmt = $bdd->prepare($sql);
+
+        // Liez les valeurs des placeholders aux ID de composants
+        foreach ($ID_components as $key => $ID_component) {
+            $stmt->bindValue($key + 1, $ID_component, PDO::PARAM_INT); // Le "+1" est nécessaire car les index de placeholders commencent à 1
+        }
+
+        // Exécutez la requête
+        $stmt->execute();
+
+        // Récupérez les résultats
+        $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        // Créez un tableau pour stocker les ID de composants déjà trouvés
+        $foundIDs = [];
+
+        // Parcourez les résultats pour extraire les ID de composants déjà trouvés
+        foreach ($results as $result) {
+            $foundIDs[] = $result['ID_Composant'];
+        }
+
+        // Parcourez les ID de composants demandés et ajoutez les ID manquants avec l'image par défaut
+        foreach ($ID_components as $ID_component) {
+          $ID_component = (int)$ID_component;
+          if (!in_array($ID_component, $foundIDs)) {
+              // Si l'ID de composant n'a pas été trouvé, ajoutez un identifiant spécial ou une valeur null
+              $results[] = [
+                  'Chemin' => null, // Indiquez qu'il n'y a pas d'image
+                  'Extension' => null, // Indiquez qu'il n'y a pas d'extension
+                  'ID_Composant' => $ID_component
+              ];
+          }
+      }
+      
+
+        // Répondez avec les données JSON
+        header('Content-Type: application/json');
+        echo json_encode($results);
+    } else {
+        // Gérez le cas où la liste des composants n'a pas été fournie
+        echo "Aucun ID de composant fourni.";
+    }
+}
+
+
+
+
+
+
+
+
+
   if($_GET['action'] == 'getLinkPictureWithIDret2'){
     if(isset($_GET['Nom_Projet'])){
       if(isset($_GET['Nom_Wafer'])){
@@ -1136,6 +1201,49 @@
     }
     else{retour_json(false, "L'ID composant n'est pas correct");}
   }
+  
+  /*if ($_GET['action'] == 'updateMesure') {
+    if (isset($_GET['ID_Mesure'])) { // Assurez-vous d'avoir l'ID de la mesure que vous souhaitez mettre à jour
+        if (isset($_GET['NouvelleValeur'])) { // Assurez-vous d'avoir la nouvelle valeur que vous souhaitez définir
+            $ID_Mesure = $_GET['ID_Mesure'];
+            $nouvelleValeur = $_GET['NouvelleValeur'];
+
+            // Utilisez votre connexion existante à la base de données
+
+            // Préparez la requête SQL d'UPDATE
+            $requete = $bdd->prepare('UPDATE mesure SET Valeur = :nouvelleValeur WHERE ID_Mesure = :ID_Mesure');
+
+            // Exécutez la requête en liant les paramètres
+            $requete->bindParam(':nouvelleValeur', $nouvelleValeur, PDO::PARAM_STR);
+            $requete->bindParam(':ID_Mesure', $ID_Mesure, PDO::PARAM_INT);
+
+            // Exécutez la requête
+            $requete->execute();
+
+            retour_json(true, "La mesure a été mise à jour avec succès.");
+        } else {
+            retour_json(false, "La nouvelle valeur n'a pas été spécifiée.");
+        }
+    } else {
+        retour_json(false, "L'ID de la mesure n'a pas été spécifié.");
+    }
+}*/
+if ($_POST['action'] == "updateMesure") {
+  if (isset($_POST['id_comp']) && isset($_POST['id_carac']) && isset($_POST['valeur'])) {
+    $req_Update = $bdd->prepare('UPDATE mesure SET Valeur = :valeur WHERE ID_Composant = :id_composant AND ID_Caracteristique = :id_caracteristique');
+    $req_Update->execute(array(
+      'valeur' => $_POST['valeur'],
+      'id_composant' => $_POST['id_comp'],
+      'id_caracteristique' => $_POST['id_carac']
+    ));
+    retour_json(true, "Mise à jour de la mesure");
+  } else {
+    retour_json(false, "Problème avec les paramètres");
+  }
+}
+
+
+
 
   if($_GET['action'] == 'getTypicalMesure'){
     if(isset($_GET['ID_Composant'])){

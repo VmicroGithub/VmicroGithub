@@ -9,10 +9,13 @@
 <input type="hidden"  id="firstNameUser" value="<?php echo$_SESSION['prenom']; ?>">
 <input type="hidden"  id="lastNameUser" value="<?php echo$_SESSION['nom']; ?>">
 <input type="hidden"  id="idUser" value="<?php echo$_SESSION['id_user']; ?>">
-
-<div class="ligneNavigation">
-  <div id="colonne1" class="colonne">
-    <div>
+<div id="sidebar" style="overflow-y:scroll;">
+<div id="buttonContainer">
+  <button id="toggleButton">menu  <span>&uarr;</span></button>
+  <span style="margin-right: 10px;"></span>
+  <button id="toggleButton2">paramètre <span>&rarr;</span></button>
+</div>
+<div>
       <label>Projet : </label>
       <select id="selecteurProjet">
         <!--
@@ -21,36 +24,67 @@
         <option>Projet C</option>
         -->
       </select>
-    </div>
-
-    <div>
       <label>Wafer :</label>
       <select id="selecteurWafer">
         <!--<option>Wafer 1-1</option>-->
       </select>
-      <label contenteditable="true" id="traitement">Aucun traitement</label>
     </div>
-
-    <div id="ligneRetCompC1">
+  
+  <div id="ligne2" class= "ligne">
+    <div id="divTypeReticuleSurvol">
       <div>
-        <label>Réticule :</label>
+        <label> Type : </label>
+        <label id = "affichageTypeReticuleSurvol"></label>
+      </div>
+      <div>
+        <label> Reticule : </label>
+        <label id = "affichageCoordReticuleSurvol"><label>
+      </div>
+    </div>
+    <div id="representationReticule"></div>
+    <div id="legendeCouleur"></div>
+  </div>
+    <div id="ligne3" class="ligne">
+    <div class="tabs" style="margin-bottom: 10px;">
+    <label for="btncomp">Vues:</label>
+        <button class="tab selected" id="btncomp" onclick="switch_tab(1)">Composant</button>
+
+        <button class="tab"id="btnret" onclick="switch_tab(2)">Reticule</button>
+
+      </div>
+    <div>
+        <label>Rét:</label>
         <select id="selecteurReticule">
           <option>.</option>
         </select>
-      </div>
-      <div>
-        <label>Composant : </label>
+        <label>Comp : </label>
         <select id="selecteurComposant">
           <option>.</option>
         </select>
       </div>
     </div>
-    <div id="divClient" style="display:flex">
-      <label> Client : </label>
-      <label id="affichageNomClient" style="display:none;"> Non défini </label>
-      <label id="affichageClientSecret">***SURVOL***</label>
+    <div id="ligne4" class="ligne">
+    <div>
+        
+      </div>
+    <div id="divTypeComposantSurvol">
+      <label> Type : </label>
+      <label id = "affichageTypeComposantSurvol"></label>
+      <label> Comp : </label>
+      <label id = "affichageNomComposantSurvol"></label>
     </div>
-    <div id="divEtat">
+    <div id="representationComposant"></div>
+    <div style="margin-top:15px;">
+    <input type="radio" name="mortWafer" id="waferVivant" value="1" checked>
+    <label for="waferVivant" style="margin-right:5vw; cursor: pointer;">En vie</label>
+    <input type="radio" name="mortWafer" id="waferMort" value="0">
+    <label for="waferMort" style="cursor: pointer;">Mort</label>
+</div>
+
+  
+    </div>
+    <div id="ligne5" class="ligne">
+      <div id="divEtat">
       <label>Etat :</label>
       <div>
         <input type="radio" name="etatWafer" id="onWafer" value="1" checked>
@@ -79,85 +113,11 @@
         <button type="button" id="boutonVoirBoite" style="width:100%;">Voir la boite</button>
       </div>
     </div>
-
-  </div>
-  <div id="colonne2" class="colonne">
-    <table style="height:100%;">
-      <tr>
-        <td  style="text-align:right;">
-          <label>Type wafer : </label>
-        </td>
-        <td>
-          <label id="affichageTypeWafer"> Non défini</label>
-        </td>
-      </tr>
-
-      <tr>
-        <td  style="text-align:right;">
-          <label>Type réticule :</label>
-        </td>
-        <td>
-          <label id="affichageTypeReticule"></label>
-        </td>
-      </tr>
-
-      <tr>
-        <td  style="text-align:right;">
-          <label>Type composant : </label>
-        </td>
-        <td>
-          <label id="affichageTypeComposant"> Non défini </label>
-        </td>
-      </tr>
-
-      <tr>
-        <td  style="text-align:right;">
-          <label>Etat composant : </label>
-        </td>
-        <td>
-          <label id="etatComposant"> Non défini </label>
-        </td>
-      </tr>
-    </table>
-
-    <div id="listMesure">
+      
+      
     </div>
+</div>
 
-    <!--
-    <div style="margin:auto;">
-      <a id="lienModifTheoricalValue">Modification des valeurs théoriques</a>
-    </div>
-    -->
-
-  </div>
-  <div id="colonne3" class= "colonne">
-    <div id="divTypeReticuleSurvol">
-      <div>
-        <label> Type : </label>
-        <label id = "affichageTypeReticuleSurvol"></label>
-      </div>
-      <div>
-        <label> Reticule : </label>
-        <label id = "affichageCoordReticuleSurvol"><label>
-      </div>
-    </div>
-    <div id="representationReticule"></div>
-    <div id="legendeCouleur"></div>
-  </div>
-  <div id="colonne4" class= "colonne">
-    <div id="divTypeComposantSurvol">
-      <label> Type : </label>
-      <label id = "affichageTypeComposantSurvol"></label>
-    </div>
-    <div id="representationComposant"></div>
-    <div style="margin:auto;">
-      <input type="radio" name="mortWafer" id="waferVivant" value="1" checked>
-      <label for="mortWafer" style="margin-right:5vw;" >En vie</label>
-      <input type="radio" name="mortWafer" id="waferMort" value="0">
-      <label for="mortWafer" style="margin-right:5vw;">Mort</label>
-    </div>
-    </div>
-  </div>
 </div>
 
 

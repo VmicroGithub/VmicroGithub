@@ -9,7 +9,8 @@
 ?>
     <meta charset="UTF-8">
     <link rel="stylesheet" href="../NavBar/styleNavBar2.css">
-    <nav>
+    
+    <nav id="menuBar" >
       <input type="hidden" id="user_id" value="<?php echo $_SESSION['id_user'];?>">
       <div class = "logo">
         <a href="https://vmicro.fr/database/BDD_1.0/Home/home.php"><img class="logoVmicro" src="https://vmicro.fr/database/BDD_1.0/NavBar/LogoVmicro2019-VB07.png"></img></a>
@@ -117,6 +118,7 @@
         <div class="line3"></div>
       </div>
     </nav>
+ 
     <div class="connectElement">
       <?php echo $_SESSION['prenom'];?>
       <?php echo $_SESSION['nom'];?>
